@@ -13,12 +13,21 @@ const (
 	TOKEN = ""
 )
 
+var (
+	APP = map[string]string{
+		"": "",
+	}
+)
+
 func main() {
-	data := getBuilds("202b51097cd44f1d")
-	for _, job := range data.Jobs {
-		fmt.Println(job.Id)
-		fmt.Println(job.StatusEmoji())
-		fmt.Println(job.StartAt)
+	for name, id := range APP {
+		data := getBuilds(id)
+		fmt.Println(name)
+		for _, job := range data.Jobs {
+			fmt.Println(job.Id)
+			fmt.Println(job.StatusEmoji())
+			fmt.Println(job.StartAt)
+		}
 	}
 }
 
