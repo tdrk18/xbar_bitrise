@@ -20,15 +20,26 @@ var (
 )
 
 func main() {
+	var AppBuildList []AppBuilds
 	for name, id := range APP {
 		data := getBuilds(id)
-		fmt.Println(name)
-		for _, job := range data.Jobs {
+		AppBuildList = append(AppBuildList, AppBuilds{name, data})
+	}
+
+	for _, app := range AppBuildList {
+		fmt.Println(app.Name)
+		for _, job := range app.Data.Jobs {
 			fmt.Println(job.Id)
+			fmt.Println(job.Workflow)
+			fmt.Println(job.StartAt.String())
 			fmt.Println(job.StatusEmoji())
-			fmt.Println(job.StartAt)
 		}
 	}
+}
+
+type AppBuilds struct {
+	Name string
+	Data ResponseData
 }
 
 type Job struct {
