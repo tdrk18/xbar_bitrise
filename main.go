@@ -1,18 +1,17 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
+	"strconv"
 	"time"
 )
 
 func main() {
-	stat := new(Stat)
-	startAt, _ := time.Parse("2006-01-02", "2021-04-30")
-	job := Job{"123", "iOS", "Push", "main", startAt, "success"}
-	stat.Jobs = append(stat.Jobs, job)
-	job = Job{"1234", "Android", "Push", "main", startAt, "aborted"}
-	stat.Jobs = append(stat.Jobs, job)
-	for _, job := range stat.Jobs {
+	data := getBuilds("", "")
+	for _, job := range data.Jobs {
 		fmt.Println(job.Id)
 		fmt.Println(job.StatusEmoji())
 		fmt.Println(job.StartAt)
@@ -20,12 +19,11 @@ func main() {
 }
 
 type Job struct {
-	Id string
-	Platform string
-	Workflow string
-	Branch string
-	StartAt time.Time
-	Status string
+	Id string `json:"slug"`
+	Workflow string `json:"triggered_workflow"`
+	Branch string `json:"branch"`
+	StartAt time.Time `json:"triggered_at"`
+	Status string `json:"status_text"`
 }
 
 func (job *Job) StatusEmoji() string {
@@ -41,6 +39,30 @@ func (job *Job) StatusEmoji() string {
 	}
 }
 
-type Stat struct {
-	Jobs []Job
+type ResponseData struct {
+	Jobs []Job `json:"data"`
+}
+
+func getBuilds(appId string, token string) ResponseData {
+	url := "https://api.bitrise.io/v0.1/apps/" + appId + "/builds"
+	now := time.Now()
+	oneHourAgo := strconv.FormatInt(now.Add(-1 * time.Hour).Unix(), 10)
+
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Authorization", "token " + token)
+	values := req.URL.Query()
+	values.Set("after", oneHourAgo)
+	req.URL.RawQuery = values.Encode()
+
+	client := new(http.Client)
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var data ResponseData
+	err = json.NewDecoder(resp.Body).Decode(&data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return data
 }
