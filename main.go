@@ -9,8 +9,12 @@ import (
 	"time"
 )
 
+const (
+	TOKEN = ""
+)
+
 func main() {
-	data := getBuilds("", "")
+	data := getBuilds("202b51097cd44f1d")
 	for _, job := range data.Jobs {
 		fmt.Println(job.Id)
 		fmt.Println(job.StatusEmoji())
@@ -43,13 +47,13 @@ type ResponseData struct {
 	Jobs []Job `json:"data"`
 }
 
-func getBuilds(appId string, token string) ResponseData {
+func getBuilds(appId string) ResponseData {
 	url := "https://api.bitrise.io/v0.1/apps/" + appId + "/builds"
 	now := time.Now()
 	oneHourAgo := strconv.FormatInt(now.Add(-1 * time.Hour).Unix(), 10)
 
 	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", "token " + token)
+	req.Header.Set("Authorization", "token " + TOKEN)
 	values := req.URL.Query()
 	values.Set("after", oneHourAgo)
 	req.URL.RawQuery = values.Encode()
