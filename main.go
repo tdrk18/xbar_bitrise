@@ -6,11 +6,17 @@ import (
 )
 
 func main() {
+	stat := new(Stat)
 	startAt, _ := time.Parse("2006-01-02", "2021-04-30")
 	job := Job{"123", "iOS", "Push", "main", startAt, "success"}
-	fmt.Println(job.Id)
-	fmt.Println(job.StatusEmoji())
-	fmt.Println(job.StartAt)
+	stat.Jobs = append(stat.Jobs, job)
+	job = Job{"1234", "Android", "Push", "main", startAt, "aborted"}
+	stat.Jobs = append(stat.Jobs, job)
+	for _, job := range stat.Jobs {
+		fmt.Println(job.Id)
+		fmt.Println(job.StatusEmoji())
+		fmt.Println(job.StartAt)
+	}
 }
 
 type Job struct {
@@ -33,4 +39,8 @@ func (job *Job) StatusEmoji() string {
 	default:
 		return ""
 	}
+}
+
+type Stat struct {
+	Jobs []Job
 }
