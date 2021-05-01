@@ -56,9 +56,11 @@ func main() {
 		fmt.Println("Past week: " + app.Name + ": " + strconv.Itoa(len(app.FinishedJobs)) + " jobs")
 		for _, job := range app.FinishedJobs {
 			jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+			layout := "01/02 15:04"
 			link := "https://app.bitrise.io/build/" + job.Id
-			fmt.Println(job.StatusEmoji() + " " + job.StartAt.In(jst).Format("2006-01-02 15:04:05") + " [" + app.Name + "/" + job.Workflow + "]" + job.Branch + " | href=" + link)
+			fmt.Println(job.StatusEmoji() + " " + job.StartAt.In(jst).Format(layout) + " [" + app.Name + "/" + job.Workflow + "]" + job.Branch + " | href=" + link)
 		}
+		fmt.Println("---")
 	}
 }
 
