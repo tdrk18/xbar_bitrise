@@ -46,8 +46,7 @@ func main() {
 	for _, app := range AppBuildList {
 		fmt.Println(app.Name + ": " + strconv.Itoa(len(app.RunningJobs)) + " jobs")
 		for _, job := range app.RunningJobs {
-			link := "https://app.bitrise.io/build/" + job.Id
-			fmt.Println("[" + job.Workflow + "]" + job.Branch + " : " + job.StatusText + " | href=" + link)
+			fmt.Println("[" + job.Workflow + "]" + job.Branch + " : " + job.StatusText + " | href=" + job.BuildLink())
 		}
 		fmt.Println("---")
 	}
@@ -57,8 +56,7 @@ func main() {
 		for _, job := range app.FinishedJobs {
 			jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 			layout := "01/02 15:04"
-			link := "https://app.bitrise.io/build/" + job.Id
-			fmt.Println(job.StatusEmoji() + " " + job.StartAt.In(jst).Format(layout) + " [" + app.Name + "/" + job.Workflow + "]" + job.Branch + " | href=" + link)
+			fmt.Println(job.StatusEmoji() + " " + job.StartAt.In(jst).Format(layout) + " [" + app.Name + "/" + job.Workflow + "]" + job.Branch + " | href=" + job.BuildLink())
 		}
 		fmt.Println("---")
 	}
@@ -90,6 +88,10 @@ func (job *Job) StatusEmoji() string {
 	default:
 		return ""
 	}
+}
+
+func (job *Job) BuildLink() string {
+	return "https://app.bitrise.io/build/" + job.Id
 }
 
 type ResponseData struct {
