@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	TOKEN = ""
+	TOKEN       = ""
+	IconBitrise = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAlwSFlzAAAOJgAADiYBou8l/AAAActpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDUuNC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx4bXA6Q3JlYXRvclRvb2w+d3d3Lmlua3NjYXBlLm9yZzwveG1wOkNyZWF0b3JUb29sPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KGMtVWAAAAl5JREFUOBF1U7+PUkEQnn0/IAZ4cIEzBDHEXGNyF73q0JaGYGltYS6x0tKY6B8gsTZqYaQytDQmeDkhZyOJ1BYUZ6NcwUGAAIHHe7x1voU1p8ZJPubHzs5+M/Mw6V8xOCSz2ewdJxqpOk7sQcyJjyeTyTeOq7OLV6yNI1hfROC68x3TMBMcnwcr7/omz9xoKAmgIgROwFgxfAYdHNz6ktpOLVKpbfvG/n4TMRaPgTwAd/4QzQBFYUOeM14riwiv6xx9vk5MJhJ3M1evPEkktiYUrFlJIZYr39+RJC3LsjtSyrAhREBC0Hg8inR//Hw1GA7fqxkMRqP020olXygUyHVdzhFkGAb5vk98kWzbvhYEgbLD4TC1Wi0qlUofwEwPMZ5MJikej7sc0y2gRz00zAa01aw4N8z2JQYZN/f2Dlk/nk6n8O3VamXxyygM2wD4dZuZWJ7nIR6azWbIfXQ7nz80Ft7yPjvHTA2vGEdHH6lWq8n5fE6maep2ZKfToUqlIrvdrohGo0vO/TqZTe9Z3C5op9Ajv0a7u3vQAjYEM2AIx3GoWCxSJBJRc+KjLSGpb8Vi8RfsvONR84NmkMvldK9qVWAByWQy6B+xgHNDrNOX0+lnVrvd/sROuX9+/qbf78vFYoEkXoS6z+ZawIItiS30ej0EXzYajWO9BdFsNql7dqaogzZE1VibavwoyozE99NTHOuvGDY9rNfrfE8uWTyG/x94nON9PjlB2ae4qBlYoRDaIpv7g1bTV8bmR7OCq3Nh6wLDcrk8qFarY2yA439N4Pc/R2KovMoY5/RR4Beqzhqkr7rq2gAAAABJRU5ErkJggg=="
 )
 
 var (
@@ -35,22 +36,27 @@ func main() {
 		AppBuildList = append(AppBuildList, AppBuilds{name, runningList, finishedList})
 	}
 
+	runningTotal := 0
+	for _, appBuild := range AppBuildList {
+		runningTotal += len(appBuild.RunningJobs)
+	}
+	fmt.Println(strconv.Itoa(runningTotal) + " | image=" + IconBitrise)
+	fmt.Println("---")
+
 	for _, app := range AppBuildList {
-		fmt.Println("-- running --")
-		fmt.Println(app.Name)
+		fmt.Println(app.Name + ": " + strconv.Itoa(len(app.RunningJobs)) + " jobs")
 		for _, job := range app.RunningJobs {
-			fmt.Println(job.Id)
-			fmt.Println(job.Workflow)
-			fmt.Println(job.StartAt.String())
-			fmt.Println(job.StatusEmoji())
+			link := "https://app.bitrise.io/build/" + job.Id
+			fmt.Println("[" + job.Workflow + "]" + job.Branch + " : " + job.StatusText + " | href=" + link)
 		}
-		fmt.Println("-- finished --")
-		fmt.Println(app.Name)
+		fmt.Println("---")
+	}
+
+	for _, app := range AppBuildList {
+		fmt.Println("Past week: " + app.Name + ": " + strconv.Itoa(len(app.FinishedJobs)) + " jobs")
 		for _, job := range app.FinishedJobs {
-			fmt.Println(job.Id)
-			fmt.Println(job.Workflow)
-			fmt.Println(job.StartAt.String())
-			fmt.Println(job.StatusEmoji())
+			link := "https://app.bitrise.io/build/" + job.Id
+			fmt.Println(job.StatusEmoji() + " " + job.StartAt.Format("2006-01-02 15:04:05") + " [" + app.Name + "/" + job.Workflow + "]" + job.Branch + " | href=" + link)
 		}
 	}
 }
