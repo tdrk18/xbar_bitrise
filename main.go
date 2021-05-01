@@ -18,6 +18,7 @@ var (
 	APP = map[string]string{
 		"": "",
 	}
+	JST = time.FixedZone("Asia/Tokyo", 9*60*60)
 )
 
 func main() {
@@ -58,6 +59,9 @@ func main() {
 		}
 		fmt.Println("---")
 	}
+
+	now := time.Now().In(JST)
+	fmt.Println("Last Updated: " + now.Format("2006-01-02 15:04:05") + " | disabled=true")
 }
 
 type AppBuilds struct {
@@ -93,9 +97,8 @@ func (job *Job) BuildLink() string {
 }
 
 func (job *Job) BuildStartTime() string {
-	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 	layout := "01/02 15:04"
-	return job.StartAt.In(jst).Format(layout)
+	return job.StartAt.In(JST).Format(layout)
 }
 
 type ResponseData struct {
