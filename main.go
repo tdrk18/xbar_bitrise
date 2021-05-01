@@ -22,46 +22,11 @@ var (
 )
 
 func main() {
-	var AppBuildList []AppBuilds
-	for name, id := range APP {
-		data := getBuilds(id)
-		var runningList []Job
-		var finishedList []Job
-		for _, job := range data.Jobs {
-			if job.Status == 0 {
-				runningList = append(runningList, job)
-			} else {
-				finishedList = append(finishedList, job)
-			}
-		}
-		AppBuildList = append(AppBuildList, AppBuilds{name, runningList, finishedList})
-	}
-
-	runningTotal := 0
-	for _, appBuild := range AppBuildList {
-		runningTotal += len(appBuild.RunningJobs)
-	}
-	fmt.Println(strconv.Itoa(runningTotal) + " | image=" + IconBitrise)
-	fmt.Println("---")
-
-	for _, app := range AppBuildList {
-		fmt.Println(app.Name + ": " + strconv.Itoa(len(app.RunningJobs)) + " jobs")
-		for _, job := range app.RunningJobs {
-			fmt.Println("[" + job.Workflow + "]" + job.Branch + " : " + job.StatusText + " | href=" + job.BuildLink())
-		}
-		fmt.Println("---")
-	}
-
-	for _, app := range AppBuildList {
-		fmt.Println("Last day: " + app.Name + ": " + strconv.Itoa(len(app.FinishedJobs)) + " jobs")
-		for _, job := range app.FinishedJobs {
-			fmt.Println(job.StatusEmoji() + " " + job.BuildStartTime() + " [" + app.Name + "/" + job.Workflow + "]" + job.Branch + " | href=" + job.BuildLink())
-		}
-		fmt.Println("---")
-	}
-
-	now := time.Now().In(JST)
-	fmt.Println("Last Updated: " + now.Format("2006-01-02 15:04:05") + " | disabled=true")
+	AppBuildList := makeAppBuildList()
+	showTopInfo(AppBuildList)
+	showRunningList(AppBuildList)
+	showFinishedList(AppBuildList)
+	showLastUpdate()
 }
 
 type AppBuilds struct {
@@ -127,4 +92,56 @@ func getBuilds(appId string) ResponseData {
 		log.Fatal(err)
 	}
 	return data
+}
+
+func makeAppBuildList() []AppBuilds {
+	var AppBuildList []AppBuilds
+	for name, id := range APP {
+		data := getBuilds(id)
+		var runningList []Job
+		var finishedList []Job
+		for _, job := range data.Jobs {
+			if job.Status == 0 {
+				runningList = append(runningList, job)
+			} else {
+				finishedList = append(finishedList, job)
+			}
+		}
+		AppBuildList = append(AppBuildList, AppBuilds{name, runningList, finishedList})
+	}
+	return AppBuildList
+}
+
+func showTopInfo(builds []AppBuilds) {
+	runningTotal := 0
+	for _, appBuild := range builds {
+		runningTotal += len(appBuild.RunningJobs)
+	}
+	fmt.Println(strconv.Itoa(runningTotal) + " | image=" + IconBitrise)
+	fmt.Println("---")
+}
+
+func showRunningList(builds []AppBuilds) {
+	for _, app := range builds {
+		fmt.Println(app.Name + ": " + strconv.Itoa(len(app.RunningJobs)) + " jobs")
+		for _, job := range app.RunningJobs {
+			fmt.Println("[" + job.Workflow + "]" + job.Branch + " : " + job.StatusText + " | href=" + job.BuildLink())
+		}
+		fmt.Println("---")
+	}
+}
+
+func showFinishedList(builds []AppBuilds) {
+	for _, app := range builds {
+		fmt.Println("Last day: " + app.Name + ": " + strconv.Itoa(len(app.FinishedJobs)) + " jobs")
+		for _, job := range app.FinishedJobs {
+			fmt.Println(job.StatusEmoji() + " " + job.BuildStartTime() + " [" + app.Name + "/" + job.Workflow + "]" + job.Branch + " | href=" + job.BuildLink())
+		}
+		fmt.Println("---")
+	}
+}
+
+func showLastUpdate() {
+	now := time.Now().In(JST)
+	fmt.Println("Last Updated: " + now.Format("2006-01-02 15:04:05") + " | disabled=true")
 }
