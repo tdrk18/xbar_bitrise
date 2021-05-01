@@ -53,7 +53,7 @@ func main() {
 	}
 
 	for _, app := range AppBuildList {
-		fmt.Println("Past week: " + app.Name + ": " + strconv.Itoa(len(app.FinishedJobs)) + " jobs")
+		fmt.Println("Last day: " + app.Name + ": " + strconv.Itoa(len(app.FinishedJobs)) + " jobs")
 		for _, job := range app.FinishedJobs {
 			fmt.Println(job.StatusEmoji() + " " + job.BuildStartTime() + " [" + app.Name + "/" + job.Workflow + "]" + job.Branch + " | href=" + job.BuildLink())
 		}
@@ -108,12 +108,12 @@ type ResponseData struct {
 func getBuilds(appId string) ResponseData {
 	url := "https://api.bitrise.io/v0.1/apps/" + appId + "/builds"
 	now := time.Now()
-	oneHourAgo := strconv.FormatInt(now.Add(-1*time.Hour).Unix(), 10)
+	oneDayAgo := strconv.FormatInt(now.Add(-24*time.Hour).Unix(), 10)
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "token "+TOKEN)
 	values := req.URL.Query()
-	values.Set("after", oneHourAgo)
+	values.Set("after", oneDayAgo)
 	req.URL.RawQuery = values.Encode()
 
 	client := new(http.Client)
