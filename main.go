@@ -54,9 +54,7 @@ func main() {
 	for _, app := range AppBuildList {
 		fmt.Println("Past week: " + app.Name + ": " + strconv.Itoa(len(app.FinishedJobs)) + " jobs")
 		for _, job := range app.FinishedJobs {
-			jst := time.FixedZone("Asia/Tokyo", 9*60*60)
-			layout := "01/02 15:04"
-			fmt.Println(job.StatusEmoji() + " " + job.StartAt.In(jst).Format(layout) + " [" + app.Name + "/" + job.Workflow + "]" + job.Branch + " | href=" + job.BuildLink())
+			fmt.Println(job.StatusEmoji() + " " + job.BuildStartTime() + " [" + app.Name + "/" + job.Workflow + "]" + job.Branch + " | href=" + job.BuildLink())
 		}
 		fmt.Println("---")
 	}
@@ -92,6 +90,12 @@ func (job *Job) StatusEmoji() string {
 
 func (job *Job) BuildLink() string {
 	return "https://app.bitrise.io/build/" + job.Id
+}
+
+func (job *Job) BuildStartTime() string {
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	layout := "01/02 15:04"
+	return job.StartAt.In(jst).Format(layout)
 }
 
 type ResponseData struct {
