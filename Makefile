@@ -1,4 +1,4 @@
-APPNAME := "bitbar_bitrise.2m.cgo"
+APPNAME := "xbar_bitrise.2m.cgo"
 
 .PHONY: build
 build:

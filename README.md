@@ -1,4 +1,4 @@
-# BitBar plugin for the Bitrise build status
+# xbar plugin for the Bitrise build status
 
 ## Functions
 - Display the number of running builds
